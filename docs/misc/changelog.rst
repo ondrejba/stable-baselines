@@ -62,6 +62,7 @@ Others:
 - Replaced redundant code in load_results (@jbulow)
 - Minor PEP8 fixes in dqn.py (@justinkterry)
 - Add a message to the assert in `PPO2`
+- Update replay buffer doctring
 
 Documentation:
 ^^^^^^^^^^^^^^

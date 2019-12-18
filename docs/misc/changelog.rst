@@ -63,6 +63,7 @@ Others:
 - Minor PEP8 fixes in dqn.py (@justinkterry)
 - Add a message to the assert in `PPO2`
 - Update replay buffer doctring
+- Fix `VecEnv` docstrings
 
 Documentation:
 ^^^^^^^^^^^^^^

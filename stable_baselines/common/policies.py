@@ -108,13 +108,13 @@ class BasePolicy(ABC):
     recurrent = False
 
     def __init__(self, sess, ob_space, ac_space, n_env, n_steps, n_batch, reuse=False, scale=False,
-                 obs_phs=None, add_action_ph=False):
+                 obs_phs=None, add_action_ph=False, observation_input_fc=observation_input):
         self.n_env = n_env
         self.n_steps = n_steps
         self.n_batch = n_batch
         with tf.variable_scope("input", reuse=False):
             if obs_phs is None:
-                self._obs_ph, self._processed_obs = observation_input(ob_space, n_batch, scale=scale)
+                self._obs_ph, self._processed_obs = observation_input_fc(ob_space, n_batch, scale=scale)
             else:
                 self._obs_ph, self._processed_obs = obs_phs
 
@@ -216,9 +216,10 @@ class ActorCriticPolicy(BasePolicy):
     :param scale: (bool) whether or not to scale the input
     """
 
-    def __init__(self, sess, ob_space, ac_space, n_env, n_steps, n_batch, reuse=False, scale=False):
+    def __init__(self, sess, ob_space, ac_space, n_env, n_steps, n_batch, reuse=False, scale=False,
+                 observation_input_fc=observation_input):
         super(ActorCriticPolicy, self).__init__(sess, ob_space, ac_space, n_env, n_steps, n_batch, reuse=reuse,
-                                                scale=scale)
+                                                scale=scale, observation_input_fc=observation_input_fc)
         self._pdtype = make_proba_dist_type(ac_space)
         self._policy = None
         self._proba_distribution = None
@@ -535,9 +536,11 @@ class FeedForwardPolicy(ActorCriticPolicy):
     """
 
     def __init__(self, sess, ob_space, ac_space, n_env, n_steps, n_batch, reuse=False, layers=None, net_arch=None,
-                 act_fun=tf.tanh, cnn_extractor=nature_cnn, feature_extraction="cnn", **kwargs):
+                 act_fun=tf.tanh, cnn_extractor=nature_cnn, feature_extraction="cnn",
+                 observation_input_fc=observation_input, **kwargs):
         super(FeedForwardPolicy, self).__init__(sess, ob_space, ac_space, n_env, n_steps, n_batch, reuse=reuse,
-                                                scale=(feature_extraction == "cnn"))
+                                                scale=(feature_extraction == "cnn"),
+                                                observation_input_fc=observation_input_fc)
 
         self._kwargs_check(feature_extraction, kwargs)
 

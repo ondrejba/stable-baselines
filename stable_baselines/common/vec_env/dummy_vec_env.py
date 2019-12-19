@@ -13,7 +13,7 @@ class DummyVecEnv(VecEnv):
     require a vectorized environment, but that you want a single environments to train with.
 
     :param env_fns: ([callable]) A list of functions that will create the environments
-        (each callable return a `Gym.Env` instance when called).
+        (each callable returns a `Gym.Env` instance when called).
     """
 
     def __init__(self, env_fns):

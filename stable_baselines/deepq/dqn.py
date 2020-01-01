@@ -311,7 +311,7 @@ class DQN(OffPolicyRLModel):
 
                 self.num_timesteps += 1
 
-        return self
+        return episode_rewards
 
     def predict(self, observation, state=None, mask=None, deterministic=True):
         observation = np.array(observation)

@@ -62,7 +62,7 @@ class DQN(OffPolicyRLModel):
                  prioritized_replay_eps=1e-6, param_noise=False,
                  n_cpu_tf_sess=None, verbose=0, tensorboard_log=None,
                  _init_setup_model=True, policy_kwargs=None, full_tensorboard_log=False, seed=None,
-                 use_rmspror=False, rmspror_alpha=0.95, rmspror_epsilon=0.01):
+                 use_rmsprop=False, rmsprop_alpha=0.95, rmsprop_epsilon=0.01):
 
         # TODO: replay_buffer refactoring
         super(DQN, self).__init__(policy=policy, env=env, replay_buffer=None, verbose=verbose, policy_base=DQNPolicy,
@@ -87,9 +87,9 @@ class DQN(OffPolicyRLModel):
         self.tensorboard_log = tensorboard_log
         self.full_tensorboard_log = full_tensorboard_log
         self.double_q = double_q
-        self.use_rmspror = use_rmspror
-        self.rmspror_alpha = rmspror_alpha
-        self.rmspror_epsilon = rmspror_epsilon
+        self.use_rmsprop = use_rmsprop
+        self.rmsprop_alpha = rmsprop_alpha
+        self.rmsprop_epsilon = rmsprop_epsilon
 
         self.graph = None
         self.sess = None
@@ -132,9 +132,9 @@ class DQN(OffPolicyRLModel):
                 self.set_random_seed(self.seed)
                 self.sess = tf_util.make_session(num_cpu=self.n_cpu_tf_sess, graph=self.graph)
 
-                if self.use_rmspror:
+                if self.use_rmsprop:
                     optimizer = tf.train.RMSPropOptimizer(
-                        learning_rate=self.learning_rate, decay=self.rmspror_alpha, epsilon=self.rmspror_epsilon,
+                        learning_rate=self.learning_rate, decay=self.rmsprop_alpha, epsilon=self.rmsprop_epsilon,
                         centered=True
                     )
                 else:

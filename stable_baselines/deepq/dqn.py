@@ -62,7 +62,7 @@ class DQN(OffPolicyRLModel):
                  prioritized_replay_eps=1e-6, param_noise=False,
                  n_cpu_tf_sess=None, verbose=0, tensorboard_log=None,
                  _init_setup_model=True, policy_kwargs=None, full_tensorboard_log=False, seed=None,
-                 use_rmsprop=False, rmsprop_alpha=0.95, rmsprop_epsilon=0.01):
+                 use_rmsprop=False, rmsprop_alpha=0.95, rmsprop_epsilon=0.01, exploration_offset=0):
 
         # TODO: replay_buffer refactoring
         super(DQN, self).__init__(policy=policy, env=env, replay_buffer=None, verbose=verbose, policy_base=DQNPolicy,
@@ -90,6 +90,7 @@ class DQN(OffPolicyRLModel):
         self.use_rmsprop = use_rmsprop
         self.rmsprop_alpha = rmsprop_alpha
         self.rmsprop_epsilon = rmsprop_epsilon
+        self.exploration_offset = exploration_offset
 
         self.graph = None
         self.sess = None
@@ -208,7 +209,7 @@ class DQN(OffPolicyRLModel):
                 # Take action and update exploration to the newest value
                 kwargs = {}
                 if not self.param_noise:
-                    update_eps = self.exploration.value(self.num_timesteps)
+                    update_eps = self.exploration.value(self.num_timesteps - self.exploration_offset)
                     update_param_noise_threshold = 0.
                 else:
                     update_eps = 0.
@@ -217,8 +218,8 @@ class DQN(OffPolicyRLModel):
                     # See Appendix C.1 in Parameter Space Noise for Exploration, Plappert et al., 2017
                     # for detailed explanation.
                     update_param_noise_threshold = \
-                        -np.log(1. - self.exploration.value(self.num_timesteps) +
-                                self.exploration.value(self.num_timesteps) / float(self.env.action_space.n))
+                        -np.log(1. - self.exploration.value(self.num_timesteps - self.exploration_offset) +
+                                self.exploration.value(self.num_timesteps - self.exploration_offset) / float(self.env.action_space.n))
                     kwargs['reset'] = reset
                     kwargs['update_param_noise_threshold'] = update_param_noise_threshold
                     kwargs['update_param_noise_scale'] = True
@@ -306,7 +307,7 @@ class DQN(OffPolicyRLModel):
                         logger.logkv("success rate", np.mean(episode_successes[-100:]))
                     logger.record_tabular("mean 100 episode reward", mean_100ep_reward)
                     logger.record_tabular("% time spent exploring",
-                                          int(100 * self.exploration.value(self.num_timesteps)))
+                                          int(100 * self.exploration.value(self.num_timesteps - self.exploration_offset)))
                     logger.dump_tabular()
 
                 self.num_timesteps += 1
